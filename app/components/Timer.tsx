@@ -3,87 +3,97 @@
 import { useEffect, useState } from "react";
 
 export default function Timer() {
-  const [seconds, setSeconds] = useState(1500);
+  const [minutes, setMinutes] = useState(25);
+  const [secondsLeft, setSecondsLeft] = useState(1500);
   const [running, setRunning] = useState(false);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    if (!running) return;
 
-    if (running && seconds > 0) {
-      interval = setInterval(() => {
-        setSeconds((prev) => prev - 1);
-      }, 1000);
-    }
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          setRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [running, seconds]);
+  }, [running]);
 
   const formatTime = () => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    const mins = Math.floor(secondsLeft / 60);
+    const secs = secondsLeft % 60;
 
     return `${String(mins).padStart(2, "0")}:${String(
       secs
     ).padStart(2, "0")}`;
   };
 
+  const applyCustomTime = () => {
+    const total = minutes * 60;
+    setSecondsLeft(total);
+    setRunning(false);
+  };
+
   return (
     <div className="timerCard">
 
+      <div className="timerGlow" />
+
       <h2>Focus Session</h2>
 
-      <div className="timer">
+      <div className="timerDisplay">
         {formatTime()}
       </div>
 
-      <div className="presetRow">
-        <button onClick={() => setSeconds(1500)}>
-          25m
-        </button>
+      <div className="customTime">
+        <input
+          type="number"
+          value={minutes}
+          min={1}
+          max={300}
+          onChange={(e) =>
+            setMinutes(Number(e.target.value))
+          }
+        />
 
-        <button onClick={() => setSeconds(3000)}>
-          50m
-        </button>
-
-        <button onClick={() => setSeconds(5400)}>
-          90m
+        <button
+          className="glassButton"
+          onClick={applyCustomTime}
+        >
+          Set Minutes
         </button>
       </div>
 
       <div className="controls">
+
         <button
-          className="start"
+          className="primaryButton"
           onClick={() => setRunning(true)}
         >
           Start
         </button>
 
         <button
-          className="pause"
+          className="glassButton"
           onClick={() => setRunning(false)}
         >
           Pause
         </button>
 
         <button
-          className="reset"
+          className="glassButton"
           onClick={() => {
             setRunning(false);
-            setSeconds(1500);
+            setSecondsLeft(minutes * 60);
           }}
         >
           Reset
         </button>
-      </div>
 
-      <div className="breaks">
-        <button onClick={() => setSeconds(300)}>
-          Short Break
-        </button>
-
-        <button onClick={() => setSeconds(900)}>
-          Long Break
-        </button>
       </div>
 
     </div>

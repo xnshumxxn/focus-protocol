@@ -1,4 +1,4 @@
-import Header from "./components/Header";
+import Header from "./components/HeaderTemp";
 import Timer from "./components/Timer";
 import ProjectPanel from "./components/ProjectPanel";
 import StatsCard from "./components/StatsCard";
