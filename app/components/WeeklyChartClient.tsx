@@ -49,7 +49,7 @@ export default function WeeklyChartClient({
                 borderRadius: 12,
                 color: "white",
               }}
-              formatter={(value: number) => [`${value}m`, "Focus"]}
+              formatter={(value) => [`${value}m`, "Focus"]}
             />
             <Bar dataKey="minutes" fill="#6366f1" radius={[6, 6, 0, 0]} />
           </BarChart>
