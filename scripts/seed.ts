@@ -1,14 +1,14 @@
 import { prisma } from "../lib/prisma";
 
 async function main() {
-
-  await prisma.user.create({
-    data: {
+  await prisma.user.upsert({
+    where: { email: "demo@focusprotocol.com" },
+    update: {},
+    create: {
       email: "demo@focusprotocol.com",
       name: "Anshumaan",
     },
   });
-
 }
 
-main();
+main().finally(() => prisma.$disconnect());

@@ -1,27 +1,57 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { useAppStore } from "@/lib/store";
+
+import { useRef } from "react";
 
 export default function Timer() {
   const [minutes, setMinutes] = useState(25);
   const [secondsLeft, setSecondsLeft] = useState(1500);
   const [running, setRunning] = useState(false);
+  const sessionSaved = useRef(false);
+  const { activeProjectId } = useAppStore();
+  const router = useRouter();
 
   useEffect(() => {
     if (!running) return;
 
     const interval = setInterval(() => {
       setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          setRunning(false);
-          return 0;
-        }
+if (prev <= 1) {
+
+  setRunning(false);
+
+  if (
+    activeProjectId &&
+    !sessionSaved.current
+  ) {
+
+    sessionSaved.current = true;
+
+    fetch("/api/sessions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        projectId: activeProjectId,
+        duration: minutes * 60,
+      }),
+    }).then(() => router.refresh());
+  }
+
+  return 0;
+}
+
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [running]);
+  }, [running, activeProjectId, minutes]);
 
   const formatTime = () => {
     const mins = Math.floor(secondsLeft / 60);
@@ -33,6 +63,7 @@ export default function Timer() {
   };
 
   const applyCustomTime = () => {
+    sessionSaved.current = false;
     const total = minutes * 60;
     setSecondsLeft(total);
     setRunning(false);
@@ -40,7 +71,6 @@ export default function Timer() {
 
   return (
     <div className="timerCard">
-
       <div className="timerGlow" />
 
       <h2>Focus Session</h2>
@@ -69,7 +99,6 @@ export default function Timer() {
       </div>
 
       <div className="controls">
-
         <button
           className="primaryButton"
           onClick={() => setRunning(true)}
@@ -87,15 +116,26 @@ export default function Timer() {
         <button
           className="glassButton"
           onClick={() => {
+            sessionSaved.current = false;
             setRunning(false);
             setSecondsLeft(minutes * 60);
           }}
         >
           Reset
         </button>
-
       </div>
 
+      {!activeProjectId && (
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "20px",
+            opacity: 0.7,
+          }}
+        >
+          Select a project before starting.
+        </p>
+      )}
     </div>
   );
 }
