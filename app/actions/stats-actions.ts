@@ -13,7 +13,14 @@ export async function getTodayStats() {
   const user = await getCurrentUser();
 
   if (!user) {
-    return { focusSeconds: 0, sessionCount: 0, streak: 0, level: 1 };
+    return {
+      focusSeconds: 0,
+      sessionCount: 0,
+      streak: 0,
+      level: 1,
+      levelProgress: 0,
+      sessionsIntoLevel: 0,
+    };
   }
 
   const todayStart = startOfDay(new Date());
@@ -34,20 +41,16 @@ export async function getTodayStats() {
     }),
   ]);
 
-  const focusSeconds = todaySessions.reduce((sum, s) => sum + s.duration, 0);
+  const focusSeconds = todaySessions.reduce((sum: any, s: { duration: any; }) => sum + s.duration, 0);
   const sessionCount = todaySessions.length;
 
-  // Streak = consecutive calendar days (walking backward from today,
-  // allowing today itself to still be empty) that have at least one session.
   const activeDays = new Set(
-    allSessions.map((s) => startOfDay(s.createdAt).getTime())
+    allSessions.map((s: { createdAt: Date; }) => startOfDay(s.createdAt).getTime())
   );
 
   let streak = 0;
   const cursor = startOfDay(new Date());
 
-  // If nothing logged today yet, streak counts from yesterday backward
-  // instead of breaking immediately.
   if (!activeDays.has(cursor.getTime())) {
     cursor.setDate(cursor.getDate() - 1);
   }
@@ -57,10 +60,18 @@ export async function getTodayStats() {
     cursor.setDate(cursor.getDate() - 1);
   }
 
-  // Simple, transparent leveling: one level per 10 completed sessions.
   const level = Math.floor(allSessions.length / 10) + 1;
+  const sessionsIntoLevel = allSessions.length % 10;
+  const levelProgress = sessionsIntoLevel / 10;
 
-  return { focusSeconds, sessionCount, streak, level };
+  return {
+    focusSeconds,
+    sessionCount,
+    streak,
+    level,
+    levelProgress,
+    sessionsIntoLevel,
+  };
 }
 
 export async function getWeeklyFocus() {
@@ -70,7 +81,7 @@ export async function getWeeklyFocus() {
   const sevenDaysAgo = startOfDay(new Date());
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
 
-  const sessions = await prisma.focusSession.findMany({
+  const sessions: { duration: number; createdAt: Date }[] = await prisma.focusSession.findMany({
     where: {
       project: { userId: user.id },
       createdAt: { gte: sevenDaysAgo },

@@ -5,7 +5,9 @@ import SignOutButton from "./SignOutButton";
 
 export default async function Header() {
   const session = await getServerSession(authOptions);
-  const { level } = session ? await getTodayStats() : { level: 1 };
+  const stats = session
+    ? await getTodayStats()
+    : { level: 1, levelProgress: 0, sessionsIntoLevel: 0 };
 
   return (
     <header className="header">
@@ -29,9 +31,19 @@ export default async function Header() {
             </div>
           )}
 
-          <div>
+          <div className="profileInfo">
             <h3>{session.user.name}</h3>
-            <p>Level {level} Focuser</p>
+            <p>Level {stats.level} Focuser</p>
+
+            <div className="levelBarTrack">
+              <div
+                className="levelBarFill"
+                style={{ width: `${stats.levelProgress * 100}%` }}
+              />
+            </div>
+            <span className="levelBarLabel">
+              {stats.sessionsIntoLevel}/10 to Level {stats.level + 1}
+            </span>
           </div>
 
           <SignOutButton />

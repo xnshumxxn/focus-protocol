@@ -4,14 +4,20 @@ import { create } from "zustand";
 
 interface AppStore {
   activeProjectId: string | null;
-  setActiveProjectId: (id: string) => void;
+  activeProjectColor: string;
+  activeProjectName: string;
+  setActiveProject: (id: string, color: string, name: string) => void;
 }
 
 export const useAppStore = create<AppStore>((set) => ({
   activeProjectId: null,
+  activeProjectColor: "#6366f1",
+  activeProjectName: "",
 
-  setActiveProjectId: (id) =>
+  setActiveProject: (id, color, name) =>
     set({
       activeProjectId: id,
+      activeProjectColor: color,
+      activeProjectName: name,
     }),
 }));

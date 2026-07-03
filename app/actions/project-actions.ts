@@ -17,7 +17,7 @@ export async function getProjects() {
   });
 }
 
-export async function createProject(name: string) {
+export async function createProject(name: string, color: string = "#6366f1") {
   if (!name.trim()) return;
 
   const user = await getCurrentUser();
@@ -26,6 +26,7 @@ export async function createProject(name: string) {
   await prisma.project.create({
     data: {
       name,
+      color,
       userId: user.id,
     },
   });
@@ -35,7 +36,6 @@ export async function deleteProject(projectId: string) {
   const user = await getCurrentUser();
   if (!user) throw new Error("Not signed in");
 
-  // Make sure the project actually belongs to the caller before touching it.
   const project = await prisma.project.findUnique({
     where: { id: projectId },
   });
