@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 
 import { useAppStore } from "@/lib/store";
 
-const RADIUS = 130;
+const RADIUS = 150;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function Timer() {
-  const [minutes, setMinutes] = useState(25);
-  const [secondsLeft, setSecondsLeft] = useState(1500);
-  const [totalSeconds, setTotalSeconds] = useState(1500);
+  const [minutes, setMinutes] = useState(30);
+  const [secondsLeft, setSecondsLeft] = useState(1800);
+  const [totalSeconds, setTotalSeconds] = useState(1800);
   const [running, setRunning] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const sessionSaved = useRef(false);

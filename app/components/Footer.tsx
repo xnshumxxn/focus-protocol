@@ -1,3 +1,5 @@
+import { Link } from "lucide-react";
+
 export default function Footer() {
   const year = new Date().getFullYear();
 
@@ -6,9 +8,9 @@ export default function Footer() {
       <span>© {year} Focus Protocol. All rights reserved.</span>
 
       <div className="footerLinks">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="https://github.com" target="_blank" rel="noreferrer">
+          <Link href="/Privacy/page.tsx"> Privacy </Link>
+          <Link href="/Terms/page.tsx"> Terms </Link>
+        <a href="https://github.com/xnshumxxn/focus-protocol" target="_blank" rel="noreferrer">
           GitHub
         </a>
       </div>
