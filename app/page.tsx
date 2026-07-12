@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-import RecentSessions from "./components/RecentSessions";
 import Header from "./components/Header";
 import Timer from "./components/Timer";
 import ProjectPanel from "./components/ProjectPanel";
@@ -27,7 +26,6 @@ export default async function Home() {
         <div className="leftColumn">
           <Timer />
           <WeeklyChart />
-          <RecentSessions />
         </div>
 
         <div className="rightColumn">

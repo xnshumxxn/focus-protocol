@@ -4,21 +4,17 @@ import { useState } from "react";
 
 export const THEME_STORAGE_KEY = "focus-protocol-theme";
 
-export const THEMES: {
-  id: string;
-  label: string;
-  preview: string; // small css gradient used for the swatch preview
-}[] = [
-  { id: "default", label: "Indigo Night", preview: "linear-gradient(135deg,#05070d,#6366f1)" },
-  { id: "hackertype", label: "Hackertype", preview: "linear-gradient(135deg,#000000,#00ff66)" },
-  { id: "sakura", label: "Sakura", preview: "linear-gradient(135deg,#fff3f6,#f472b6)" },
-  { id: "minimal", label: "Minimal", preview: "linear-gradient(135deg,#f6f6f8,#4f46e5)" },
-  { id: "sunset", label: "Sunset", preview: "linear-gradient(135deg,#150806,#f97316)" },
-  { id: "forest", label: "Forest", preview: "linear-gradient(135deg,#051209,#22c55e)" },
-  { id: "ocean", label: "Ocean", preview: "linear-gradient(135deg,#020c16,#0ea5e9)" },
-  { id: "dracula", label: "Dracula", preview: "linear-gradient(135deg,#0e0a17,#bd93f9)" },
-  { id: "crimson", label: "Crimson", preview: "linear-gradient(135deg,#130405,#ef4444)" },
-  { id: "mono", label: "Mono", preview: "linear-gradient(135deg,#0a0a0a,#e5e5e5)" },
+export const THEMES: { id: string; label: string }[] = [
+  { id: "default", label: "Indigo Night" },
+  { id: "hackertype", label: "Hackertype" },
+  { id: "sakura", label: "Sakura" },
+  { id: "minimal", label: "Minimal" },
+  { id: "sunset", label: "Sunset" },
+  { id: "forest", label: "Forest" },
+  { id: "ocean", label: "Ocean" },
+  { id: "dracula", label: "Dracula" },
+  { id: "crimson", label: "Crimson" },
+  { id: "mono", label: "Mono" },
 ];
 
 export default function ThemeSwitcher() {
@@ -40,23 +36,23 @@ export default function ThemeSwitcher() {
 
   return (
     <div className="card themeSwitcherCard">
-      <h2>Themes</h2>
+      <div className="chartHeaderRow">
+        <h2>Theme</h2>
 
-      <div className="themeSwitcherRow">
-        {THEMES.map((t) => (
-          <button
-            key={t.id}
-            className={`themeSwatch ${theme === t.id ? "themeSwatchActive" : ""}`}
-            onClick={() => applyTheme(t.id)}
-            aria-label={`Switch to ${t.label} theme`}
+        <div className="themeSelectWrap">
+          <span className="themeDot" style={{ background: "var(--accent)" }} />
+          <select
+            className="themeSelect"
+            value={theme}
+            onChange={(e) => applyTheme(e.target.value)}
           >
-            <span
-              className="themeSwatchPreview"
-              style={{ background: t.preview }}
-            />
-            <span className="themeSwatchLabel">{t.label}</span>
-          </button>
-        ))}
+            {THEMES.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );

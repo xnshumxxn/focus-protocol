@@ -199,49 +199,63 @@ export type LeaderboardEntry = {
 
 // Ranks every registered user by number of focus sessions completed
 // within the given period (week = last 7 days, month = last 30 days).
+// Every registered user is included, even with 0 sessions in the period.
 export async function getLeaderboard(
   period: LeaderboardPeriod
 ): Promise<LeaderboardEntry[]> {
   const start = startOfDay(new Date());
   start.setDate(start.getDate() - (period === "week" ? 6 : 29));
 
-  const sessions = await prisma.focusSession.findMany({
-    where: {
-      createdAt: { gte: start },
-    },
-    select: {
-      duration: true,
-      project: {
-        select: {
-          user: {
-            select: { id: true, name: true, image: true },
+  const [allUsers, sessions] = await Promise.all([
+    prisma.user.findMany({
+      select: { id: true, name: true, image: true },
+    }),
+    prisma.focusSession.findMany({
+      where: {
+        createdAt: { gte: start },
+      },
+      select: {
+        duration: true,
+        project: {
+          select: {
+            user: {
+              select: { id: true },
+            },
           },
         },
       },
-    },
-  });
+    }),
+  ]);
 
-  const byUser = new Map<string, LeaderboardEntry>();
+  const counts = new Map<string, { sessionCount: number; focusSeconds: number }>();
 
   for (const s of sessions) {
-    const u = s.project.user;
-    const existing = byUser.get(u.id);
+    const uid = s.project.user.id;
+    const existing = counts.get(uid);
 
     if (existing) {
       existing.sessionCount += 1;
       existing.focusSeconds += s.duration;
     } else {
-      byUser.set(u.id, {
-        id: u.id,
-        name: u.name,
-        image: u.image,
-        sessionCount: 1,
-        focusSeconds: s.duration,
-      });
+      counts.set(uid, { sessionCount: 1, focusSeconds: s.duration });
     }
   }
 
-  return Array.from(byUser.values())
-    .sort((a, b) => b.sessionCount - a.sessionCount)
-    .slice(0, 10);
+  return allUsers
+    .map((u) => {
+      const c = counts.get(u.id);
+
+      return {
+        id: u.id,
+        name: u.name,
+        image: u.image,
+        sessionCount: c?.sessionCount ?? 0,
+        focusSeconds: c?.focusSeconds ?? 0,
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.sessionCount - a.sessionCount || b.focusSeconds - a.focusSeconds
+    )
+    .slice(0, 25);
 }
