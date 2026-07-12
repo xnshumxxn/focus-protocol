@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -9,24 +10,64 @@ import {
   CartesianGrid,
 } from "recharts";
 
+import { getFocusChart, ChartPeriod } from "../actions/stats-actions";
+
+const TABS: { id: ChartPeriod; label: string; title: string }[] = [
+  { id: "week", label: "Week", title: "This Week" },
+  { id: "month", label: "Month", title: "This Month" },
+  { id: "year", label: "Year", title: "This Year" },
+];
+
 export default function WeeklyChartClient({
-  data,
+  initialData,
 }: {
-  data: { day: string; minutes: number }[];
+  initialData: { day: string; minutes: number }[];
 }) {
+  const [period, setPeriod] = useState<ChartPeriod>("week");
+  const [data, setData] = useState(initialData);
+  const [isPending, startTransition] = useTransition();
+
   const hasData = data.some((d) => d.minutes > 0);
+  const activeTab = TABS.find((t) => t.id === period) ?? TABS[0];
+
+  function handleTabClick(next: ChartPeriod) {
+    if (next === period) return;
+
+    setPeriod(next);
+
+    startTransition(async () => {
+      const fresh = await getFocusChart(next);
+      setData(fresh);
+    });
+  }
 
   return (
     <div className="card">
-      <h2>This Week</h2>
+      <div className="chartHeaderRow">
+        <h2>{activeTab.title}</h2>
 
-      {!hasData && (
+        <div className="tabRow">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={`tabButton ${
+                period === tab.id ? "tabButtonActive" : ""
+              }`}
+              onClick={() => handleTabClick(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {!hasData && !isPending && (
         <p style={{ opacity: 0.6, marginBottom: 12 }}>
-          No sessions logged this week yet.
+          No sessions logged for this period yet.
         </p>
       )}
 
-      <div style={{ width: "100%", height: 180 }}>
+      <div style={{ width: "100%", height: 180, opacity: isPending ? 0.5 : 1 }}>
         <ResponsiveContainer>
           <BarChart data={data}>
             <CartesianGrid
@@ -40,6 +81,7 @@ export default function WeeklyChartClient({
               tickLine={false}
               axisLine={false}
               fontSize={12}
+              interval={period === "month" ? 2 : 0}
             />
             <Tooltip
               cursor={{ fill: "rgba(255,255,255,.06)" }}

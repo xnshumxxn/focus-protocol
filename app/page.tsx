@@ -9,6 +9,8 @@ import StatsCard from "./components/StatsCard";
 import TodayStats from "./components/TodayStats";
 import WeeklyChart from "./components/WeeklyChart";
 import SignInScreen from "./components/SignInScreen";
+import Leaderboard from "./components/Leaderboard";
+import ThemeSwitcher from "./components/ThemeSwitcher";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -34,6 +36,10 @@ export default async function Home() {
           <StatsCard />
         </div>
       </div>
+
+      <Leaderboard />
+
+      <ThemeSwitcher />
     </main>
   );
 }
